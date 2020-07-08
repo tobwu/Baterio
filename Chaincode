@@ -1,0 +1,19 @@
+/*
+ * The recordCirculor method *
+This method receives the arguments (attributes to be saved in the ledger). 
+ */
+func (s *SmartContract) recordCirculor(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
+
+    if len(args) != 8 {
+        return shim.Error("Incorrect number of arguments. Expecting 8")
+    }
+    var circulor = Circulor{ ScanStage: args[1], Latitude: args[2], Longitude: args[3], ScannedBy: args[4], ScannedDate: args[5], ScanAttributes: args[6], CirculorOwner: args[7] }
+
+    circulorAsBytes, _ := json.Marshal(circulor)
+    err := APIstub.PutState(args[0], circulorAsBytes)
+    if err != nil {
+        return shim.Error(fmt.Sprintf("Failed to record circulor record: %s", args[0]))
+    }
+
+    return shim.Success(nil)
+}
