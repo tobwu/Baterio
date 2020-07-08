@@ -1,0 +1,36 @@
+select *
+      into l_wf_point_row
+      from wf_point
+     where id = :P110_WF_POINT_ID;
+     
+    l_qr_scan_row                     := null;
+    l_qr_scan_row.gps_long            := nvl(:P110_LONGITUDE,l_wf_point_row.gps_long);
+    l_qr_scan_row.gps_lat             := nvl(:P110_LATITUDE,l_wf_point_row.gps_lat);
+    l_qr_scan_row.wf_point_id         := :P110_WF_POINT_ID;
+    l_qr_scan_row.created_by          := :P110_SCANNED_BY;
+    l_qr_scan_row.info_txt            := :P110_COMMENTS; 
+    l_qr_scan_row.supplier_id         := :P110_SUPPLIER_ID;
+    l_qr_scan_row.offline_id          := :P110_OFFLINE_ID;
+    l_qr_scan_row.accuracy            := :P110_ACCURACY;
+    l_qr_scan_row.altitude            := :P110_ALTITUDE;
+    l_qr_scan_row.altitude_accuracy   := :P110_ALTITUDE_ACCURACY;
+    l_qr_scan_row.heading             := :P110_HEADING;
+    l_qr_scan_row.speed               := :P110_SPEED;
+  
+    rest_pkg.save_qr_scan(
+     user_id_i           => :P110_USER_ID
+    ,company_id_i        => :P110_COMPANY_ID
+    ,access_token_i      => lc_access_token 
+    ,qr_code_i           => l_qr_code
+    ,qr_scan_row_i       => l_qr_scan_row
+    ,linked_qr_code_i    => null 
+    ,attributes_i        => :P110_ATTRIBUTES
+    ,link_qr_codes_i     => :P110_LINKED_QR_CODES
+    ,scan_date_i         => :P110_SCAN_DATE
+    ,qr_scan_id_o        => l_qr_scan_id
+    ,result_o            => :P110_RESULT
+    ,message_o           => :P110_MESSAGE_O 
+    );
+
+    :P110_QR_SCAN_ID := l_qr_scan_id;
+
