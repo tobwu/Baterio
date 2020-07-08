@@ -1,0 +1,36 @@
+      l_rest_body := '{"channel": "'||t_fabric.channel||'","chaincode": "'||t_fabric.chaincode_id||'","chaincodeVer":"'||t_fabric.chaincode_version||'","method":"recordTrackScan","args":';
+
+      l_rest_body := l_rest_body||
+                        '['||
+                        '"'||l_qr_code||'"'||              -- qrCode
+                        ','||
+                        '"'||l_company_id||'"'||           -- companyId
+                        ','||
+                        '"'||-1||'"'||                     -- customerId
+                        ','||
+                        '"'||-1||'"'||                     -- supplierId
+                        ','||
+                        '"'||qr_scan_io.gps_lat||'"'||     -- longitude
+                        ','||
+                        '"'||qr_scan_io.gps_long||'"'||    -- latitude
+                        ','||
+                        '"'||utilities_pkg.get_scan_attributes_json(qr_scan_id_i)||'"'||
+                        --'"[{\"Class\":\"base.ScanAttribute\",\"AttributeName\":\"Scan Attribute 1\",\"AttributeValue\":\"Scan Value 1\"},{\"Class\":\"base.ScanAttribute\",\"AttributeName\":\"Scan Attribute 2\",\"AttributeValue\":\"Scan Value 2\"}]"'||         -- scanAttributes
+                        ','||
+                        '"'||utilities_pkg.get_tag_attributes_json(qr_scan_id_i)||'"'||
+                        --'"[{\"Class\":\"base.TagAttribute\",\"AttributeName\":\"Tag Attribute 1\",\"AttributeValue\":\"Tag Value 1\"},{\"Class\"
+                        :\"base.TagAttribute\",\"AttributeName\":\"Tag Attribute 2\",\"AttributeValue\":\"Tag Value 2\"}]"'||                      -- tagAttributes
+                        ','||
+                        '"'||utilities_pkg.get_secure_attributes_json(l_company_id,qr_scan_id_i)||'"'||
+                        --'"[{\"Class\":\"base.SecureAttribute\",\"AttributeName\":\"'||utilities_pkg.AES_ENCRYPT_VARCHAR2('AES256','Secure Attribute 1')||'\",\"AttributeValue\":\"'||utilities_pkg.AES_ENCRYPT_VARCHAR2('AES256','Secure Value 1')||'\"},{\"Class\":\"base.SecureAttribute\",\"AttributeName\":\"'||utilities_pkg.AES_ENCRYPT_VARCHAR2('AES256','Secure Attribute 2')||'\",\"AttributeValue\":\"'||utilities_pkg.AES_ENCRYPT_VARCHAR2('AES256','Secure Value 2')||'\"}]"'||                      -- secureAttributes
+                        ']}';
+
+      l_rest_response :=  apex_web_service.make_rest_request(
+                                  p_url         => t_fabric.rest_server||REPLACE(t_fabric.rest_trx_invocation,'restproxy1','restproxy'||proxy_number_i),
+                                  p_http_method => 'POST',
+                                  p_username    => t_fabric.bc_username,
+                                  p_password    => t_fabric.bc_password,
+                                  p_body        => l_rest_body,
+                                  p_wallet_path => l_wallet_path,
+                                  p_wallet_pwd  => null
+                                 );
